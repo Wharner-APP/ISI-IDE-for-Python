@@ -1,0 +1,196 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ae="https://github.com/avaloniaui/avaloniaedit"
+        xmlns:views="using:ISI.IDE.Views"
+        x:Class="ISI.IDE.Views.MainWindow"
+        Title="{Binding WindowTitle}"
+        Width="1280" Height="800" MinWidth="820" MinHeight="520">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.dir">
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TreeViewItem">
+      <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+    </Style>
+    <Style Selector="Button.tool">
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+  </Window.Styles>
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Shift+F10" Command="{Binding RunCommand}" />
+  </Window.KeyBindings>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- ============ Menu ============ -->
+    <Menu Grid.Row="0">
+      <MenuItem Header="_File">
+        <MenuItem Header="_New file" HotKey="Ctrl+N" Command="{Binding NewFileCommand}" />
+        <MenuItem Header="_Open file..." HotKey="Ctrl+O" Command="{Binding OpenFileCommand}" />
+        <MenuItem Header="Open _folder..." HotKey="Ctrl+Shift+O" Command="{Binding OpenFolderCommand}" />
+        <Separator />
+        <MenuItem Header="_Save" HotKey="Ctrl+S" Command="{Binding SaveCommand}" />
+        <MenuItem Header="Save _as..." HotKey="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+        <MenuItem Header="Save a_ll" Command="{Binding SaveAllCommand}" />
+        <Separator />
+        <MenuItem Header="E_xit" Command="{Binding ExitCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Run">
+        <MenuItem Header="_Run current file" HotKey="F5" Command="{Binding RunCommand}" />
+        <MenuItem Header="_Stop" HotKey="Ctrl+F2" Command="{Binding StopCommand}" />
+        <MenuItem Header="_Clear console" Command="{Binding ClearConsoleCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Code">
+        <MenuItem Header="_Check file (syntax + linters)" HotKey="F7" Command="{Binding LintCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Git">
+        <MenuItem Header="_Status" Command="{Binding GitStatusCommand}" />
+        <MenuItem Header="_Commit..." Command="{Binding GitCommitCommand}" />
+        <MenuItem Header="_Pull" Command="{Binding GitPullCommand}" />
+        <MenuItem Header="P_ush" Command="{Binding GitPushCommand}" />
+        <MenuItem Header="_Log" Command="{Binding GitLogCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Tools">
+        <MenuItem Header="_Packages (pip)..." Command="{Binding OpenPackagesCommand}" />
+        <MenuItem Header="_Toggle light/dark theme" Command="{Binding ToggleThemeCommand}" />
+        <Separator />
+        <MenuItem Header="_Settings..." HotKey="Ctrl+Alt+S" Command="{Binding OpenSettingsCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="Official _website" Command="{Binding OpenWebsiteCommand}" />
+        <MenuItem Header="_About ISI IDE for Python" Command="{Binding OpenAboutCommand}" />
+      </MenuItem>
+    </Menu>
+
+    <!-- ============ Toolbar ============ -->
+    <Border Grid.Row="1" Padding="6,3" BorderThickness="0,0,0,1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <Grid ColumnDefinitions="Auto,*">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
+          <Button Classes="tool" Content="Open folder" Command="{Binding OpenFolderCommand}" />
+          <Button Classes="tool" Content="Save" Command="{Binding SaveCommand}" />
+          <Border Width="1" Margin="6,4" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+          <Button Classes="tool" Content="▶ Run" Foreground="#22C55E" FontWeight="SemiBold" Command="{Binding RunCommand}" />
+          <Button Classes="tool" Content="■ Stop" Foreground="#EF4444" Command="{Binding StopCommand}" />
+          <Button Classes="tool" Content="Check" Command="{Binding LintCommand}" />
+          <Border Width="1" Margin="6,4" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+          <Button Classes="tool" Content="Packages" Command="{Binding OpenPackagesCommand}" />
+          <Button Classes="tool" Content="Settings" Command="{Binding OpenSettingsCommand}" />
+        </StackPanel>
+        <TextBlock Grid.Column="1" Text="{Binding InterpreterText}" HorizontalAlignment="Right"
+                   VerticalAlignment="Center" Opacity="0.65" Margin="12,0,6,0"
+                   TextTrimming="CharacterEllipsis" />
+      </Grid>
+    </Border>
+
+    <!-- ============ Workspace ============ -->
+    <Grid Grid.Row="2" ColumnDefinitions="270,4,*">
+
+      <!-- Left: project + structure -->
+      <TabControl Grid.Column="0" Padding="0">
+        <TabItem Header="Project">
+          <Grid>
+            <TreeView x:Name="ProjectTree" ItemsSource="{Binding ProjectRoots}"
+                      SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                      DoubleTapped="OnProjectDoubleTapped">
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                  <TextBlock Text="{Binding Name}" Classes.dir="{Binding IsDirectory}" />
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10"
+                        IsVisible="{Binding ProjectPath, Converter={x:Static ObjectConverters.IsNull}}">
+              <TextBlock Text="No project opened" Opacity="0.7" HorizontalAlignment="Center" />
+              <Button Content="Open folder..." Classes="accent" HorizontalAlignment="Center"
+                      Command="{Binding OpenFolderCommand}" />
+            </StackPanel>
+          </Grid>
+        </TabItem>
+        <TabItem Header="Structure">
+          <ListBox x:Name="SymbolList" ItemsSource="{Binding Symbols}" DoubleTapped="OnSymbolDoubleTapped">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Display}" FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </TabItem>
+      </TabControl>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="4" />
+
+      <!-- Right: editor + bottom tool window -->
+      <Grid Grid.Column="2" RowDefinitions="*,4,240">
+
+        <Grid Grid.Row="0">
+          <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab, Mode=TwoWay}" Padding="0">
+            <TabControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding Header}" VerticalAlignment="Center" />
+                  <Button Content="×" Command="{Binding CloseCommand}" Padding="5,0" FontSize="15"
+                          Background="Transparent" BorderThickness="0" />
+                </StackPanel>
+              </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+              <DataTemplate>
+                <views:EditorView />
+              </DataTemplate>
+            </TabControl.ContentTemplate>
+          </TabControl>
+          <TextBlock Text="Open a file (Ctrl+O) or create a new one (Ctrl+N)" Opacity="0.5"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                     IsVisible="{Binding SelectedTab, Converter={x:Static ObjectConverters.IsNull}}" />
+        </Grid>
+
+        <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="4" HorizontalAlignment="Stretch" />
+
+        <TabControl Grid.Row="2" SelectedIndex="{Binding BottomTabIndex, Mode=TwoWay}" Padding="0">
+          <TabItem Header="Run">
+            <Grid RowDefinitions="*,Auto">
+              <ae:TextEditor x:Name="ConsoleEditor" Grid.Row="0" IsReadOnly="True" ShowLineNumbers="False"
+                             FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace" FontSize="13"
+                             WordWrap="True" HorizontalScrollBarVisibility="Disabled"
+                             VerticalScrollBarVisibility="Auto" />
+              <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="4" ColumnSpacing="6">
+                <TextBox Grid.Column="0" Text="{Binding InputLine, Mode=TwoWay}"
+                         Watermark="Type input for the running program and press Enter">
+                  <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding SendInputCommand}" />
+                  </TextBox.KeyBindings>
+                </TextBox>
+                <Button Grid.Column="1" Content="Send" Command="{Binding SendInputCommand}" />
+                <Button Grid.Column="2" Content="Clear" Command="{Binding ClearConsoleCommand}" />
+              </Grid>
+            </Grid>
+          </TabItem>
+          <TabItem Header="Problems">
+            <ListBox x:Name="ProblemList" ItemsSource="{Binding Problems}" DoubleTapped="OnProblemDoubleTapped">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Display}" FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </TabItem>
+        </TabControl>
+      </Grid>
+    </Grid>
+
+    <!-- ============ Status bar ============ -->
+    <Border Grid.Row="3" Padding="10,3" BorderThickness="0,1,0,0"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="18">
+        <TextBlock Grid.Column="0" Text="{Binding StatusText}" FontSize="12" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="1" Text="{Binding BranchText}" FontSize="12" />
+        <TextBlock Grid.Column="2" Text="{Binding CaretText}" FontSize="12" />
+        <TextBlock Grid.Column="3" Text="{Binding CoreText}" FontSize="12" Opacity="0.6" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

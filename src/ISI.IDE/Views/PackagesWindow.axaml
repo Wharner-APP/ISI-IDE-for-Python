@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ISI.IDE.Views.PackagesWindow"
+        Title="Python packages (pip)"
+        Width="640" Height="520" MinWidth="480" MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <Grid Margin="16" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="10">
+    <TextBlock Grid.Row="0" Text="{Binding PythonPath}" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+      <TextBox Grid.Column="0" Text="{Binding InstallName, Mode=TwoWay}"
+               Watermark="Package to install, e.g. requests or numpy>=2.0" />
+      <Button Grid.Column="1" Content="Install" Classes="accent" Command="{Binding InstallCommand}" IsEnabled="{Binding !IsBusy}" />
+      <Button Grid.Column="2" Content="Uninstall selected" Command="{Binding UninstallCommand}" IsEnabled="{Binding !IsBusy}" />
+      <Button Grid.Column="3" Content="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsBusy}" />
+    </Grid>
+    <ListBox Grid.Row="2" ItemsSource="{Binding Packages}" SelectedItem="{Binding Selected, Mode=TwoWay}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="*,140">
+            <TextBlock Grid.Column="0" Text="{Binding Name}" />
+            <TextBlock Grid.Column="1" Text="{Binding Version}" Opacity="0.7" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0" Text="{Binding Status}" VerticalAlignment="Center" />
+      <ProgressBar Grid.Column="1" IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" />
+    </Grid>
+  </Grid>
+</Window>

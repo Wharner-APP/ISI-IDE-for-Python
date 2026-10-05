@@ -1,0 +1,12 @@
+bin/
+obj/
+build-native/
+native-out/
+stage/
+dist/
+publish/
+.vs/
+.idea/
+*.user
+__pycache__/
+*.pyc

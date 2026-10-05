@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>ISI-IDE-for-Python</AssemblyName>
+    <RootNamespace>ISI.IDE</RootNamespace>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <Version>0.1.0</Version>
+    <Company>Wharner APP</Company>
+    <Product>ISI IDE for Python</Product>
+    <Copyright>© Wharner Group</Copyright>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TieredPGO>true</TieredPGO>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Set by CI / build scripts: folder with isi_core.dll | libisi_core.so | libisi_core.dylib -->
+    <NativeLibDir Condition="'$(NativeLibDir)' == ''"></NativeLibDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <!-- Python bridge scripts (isi_tools) are shipped next to the executable. -->
+  <ItemGroup>
+    <None Include="..\..\python\isi_tools\*.py"
+          Link="PythonBridge\isi_tools\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Native C++ core, built by CMake (see CMakeLists.txt). Optional: the app has a managed fallback. -->
+  <ItemGroup Condition="'$(NativeLibDir)' != ''">
+    <None Include="$(NativeLibDir)\isi_core.dll" Condition="Exists('$(NativeLibDir)\isi_core.dll')"
+          Link="isi_core.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(NativeLibDir)/libisi_core.so" Condition="Exists('$(NativeLibDir)/libisi_core.so')"
+          Link="libisi_core.so" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(NativeLibDir)/libisi_core.dylib" Condition="Exists('$(NativeLibDir)/libisi_core.dylib')"
+          Link="libisi_core.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

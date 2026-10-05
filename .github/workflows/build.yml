@@ -1,0 +1,120 @@
+name: Build ISI IDE for Python
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed only to publish a GitHub Release for v* tags
+
+env:
+  APP_VERSION: 0.1.0
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: windows-x64,  os: windows-latest, rid: win-x64,    cmake_args: '-A x64',                                          run_tests: true,  archive: zip }
+          - { name: windows-x86,  os: windows-latest, rid: win-x86,    cmake_args: '-A Win32',                                        run_tests: true,  archive: zip }
+          - { name: linux-x64,    os: ubuntu-22.04,   rid: linux-x64,  cmake_args: '',                                                 run_tests: true,  archive: tar }
+          # .NET has no 32-bit x86 Linux runtime. "linux-arm" = 32-bit ARM Linux (e.g. Raspberry Pi OS 32-bit).
+          - { name: linux-arm32,  os: ubuntu-22.04,   rid: linux-arm,  cmake_args: '-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/linux-arm.cmake', run_tests: false, archive: tar, apt: 'gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf' }
+          - { name: macos-x64,    os: macos-latest,   rid: osx-x64,    cmake_args: '-DCMAKE_OSX_ARCHITECTURES=x86_64',                 run_tests: false, archive: tar }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install cross-compiler
+        if: matrix.apt != ''
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.apt }}
+
+      # ---- 1. C++ core (CMake) ------------------------------------------------
+      - name: Configure native core
+        shell: bash
+        run: >
+          cmake -S . -B build-native -DCMAKE_BUILD_TYPE=Release
+          -DISI_NATIVE_OUT="$GITHUB_WORKSPACE/native-out"
+          -DISI_BUILD_TESTS=${{ matrix.run_tests && 'ON' || 'OFF' }}
+          ${{ matrix.cmake_args }}
+
+      - name: Build native core
+        shell: bash
+        run: cmake --build build-native --config Release --parallel
+
+      - name: Test native core
+        if: matrix.run_tests
+        shell: bash
+        run: ctest --test-dir build-native -C Release --output-on-failure
+
+      # ---- 2. C# / Avalonia application ---------------------------------------
+      - name: Publish application
+        shell: bash
+        run: >
+          dotnet publish src/ISI.IDE/ISI.IDE.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained true
+          -p:NativeLibDir="$GITHUB_WORKSPACE/native-out"
+          -p:Version=${{ env.APP_VERSION }}
+          -p:DebugType=None -p:DebugSymbols=false
+          -o "stage/ISI IDE for Python"
+
+      - name: Add bundled-Python placeholder and docs
+        shell: bash
+        run: |
+          APP="stage/ISI IDE for Python"
+          mkdir -p "$APP/Python 3.14/bin"
+          cp packaging/PUT_PYTHON_HERE.txt "$APP/Python 3.14/"
+          cp LICENSE README.md CHANGELOG.md "$APP/"
+          ls -la "$APP" | head -40
+
+      # ---- 3. Archive ---------------------------------------------------------
+      - name: Create archive (zip)
+        if: matrix.archive == 'zip'
+        shell: bash
+        run: |
+          mkdir -p dist
+          cd stage && 7z a -tzip -mx=7 "../dist/ISI-IDE-for-Python-${APP_VERSION}-${{ matrix.name }}.zip" "ISI IDE for Python"
+
+      - name: Create archive (tar.gz)
+        if: matrix.archive == 'tar'
+        shell: bash
+        run: |
+          mkdir -p dist
+          APP="stage/ISI IDE for Python"
+          chmod +x "$APP/ISI-IDE-for-Python"
+          tar -C stage -czf "dist/ISI-IDE-for-Python-${APP_VERSION}-${{ matrix.name }}.tar.gz" "ISI IDE for Python"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ISI-IDE-for-Python-${{ matrix.name }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ISI-IDE-for-Python-*
+          merge-multiple: true
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ISI.IDE.Views.AboutWindow"
+        Title="About ISI IDE for Python"
+        Width="440" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="28" Spacing="8" HorizontalAlignment="Center">
+    <Image x:Name="Logo" Width="112" Height="112" />
+    <TextBlock Text="ISI IDE for Python" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" />
+    <TextBlock x:Name="VersionText" HorizontalAlignment="Center" Opacity="0.7" />
+    <TextBlock Text="© Wharner Group" HorizontalAlignment="Center" Margin="0,12,0,0" />
+    <TextBlock Text="Developed by Wharner APP" HorizontalAlignment="Center" />
+    <Button x:Name="LinkButton" HorizontalAlignment="Center" Background="Transparent"
+            Foreground="#3B82F6" Padding="4"
+            Content="https://wharner-official-app.tilda.ws/isiidepython" Click="OnLinkClick" />
+    <TextBlock x:Name="CoreText" HorizontalAlignment="Center" Opacity="0.6" FontSize="12" />
+    <Button Content="OK" Classes="accent" MinWidth="90" HorizontalAlignment="Center"
+            Margin="0,12,0,0" Click="OnOkClick" />
+  </StackPanel>
+</Window>

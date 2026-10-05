@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ae="https://github.com/avaloniaui/avaloniaedit"
+             x:Class="ISI.IDE.Views.EditorView">
+  <ae:TextEditor x:Name="Editor"
+                 ShowLineNumbers="True"
+                 FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace"
+                 HorizontalScrollBarVisibility="Auto"
+                 VerticalScrollBarVisibility="Auto" />
+</UserControl>

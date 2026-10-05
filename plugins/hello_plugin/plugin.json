@@ -1,0 +1,8 @@
+{
+  "id": "hello-plugin",
+  "name": "Hello plugin",
+  "version": "0.1.0",
+  "author": "Wharner APP",
+  "entry": "main.py",
+  "isi_api": "1"
+}

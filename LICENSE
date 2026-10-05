@@ -1,0 +1,38 @@
+ISI IDE for Python - Proprietary Software License
+
+Copyright (c) Wharner Group. All rights reserved.
+Developed by Wharner APP.
+https://wharner-official-app.tilda.ws/isiidepython
+
+1. OWNERSHIP. The software, source code, documentation, logos and associated
+   materials (the "Software") are the exclusive property of Wharner Group.
+
+2. GRANT. Wharner Group grants you a non-exclusive, non-transferable, revocable
+   licence to install and use the Software in the form distributed by Wharner APP,
+   for personal or internal business purposes.
+
+3. RESTRICTIONS. Unless you have prior written permission from Wharner Group you
+   may not: (a) copy, modify, merge or create derivative works of the Software;
+   (b) redistribute, sublicense, sell, rent or lease the Software; (c) reverse
+   engineer or decompile the Software except where this is permitted by applicable
+   law; (d) remove or alter any copyright, trademark or branding notices.
+
+4. THIRD-PARTY COMPONENTS. The Software includes open-source components (for
+   example Avalonia, AvaloniaEdit, CommunityToolkit.Mvvm and the .NET runtime)
+   that are licensed under their own terms. Python interpreters placed by the user
+   in the "Python 3.14" folder are licensed under the Python Software Foundation
+   License. These terms are not changed by this licence.
+
+5. NO WARRANTY. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+6. LIMITATION OF LIABILITY. IN NO EVENT SHALL WHARNER GROUP OR WHARNER APP BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE
+   SOFTWARE.
+
+7. TERMINATION. This licence terminates automatically if you breach any of its
+   terms.
+
+NOTE: this is a template prepared with the project scaffold. Have it reviewed by a
+lawyer before public release.

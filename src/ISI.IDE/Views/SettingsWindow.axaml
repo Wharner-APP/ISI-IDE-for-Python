@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ISI.IDE.Views.SettingsWindow"
+        Title="Settings"
+        Width="640" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="24" Spacing="14">
+    <TextBlock Text="Python interpreter" FontSize="16" FontWeight="SemiBold" />
+    <TextBlock Text="By default the IDE uses the Python bundled next to the application. You can point it to any other interpreter (venv, conda, system Python)."
+               TextWrapping="Wrap" Opacity="0.7" />
+    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+      <TextBox Grid.Column="0" Text="{Binding PythonPath, Mode=TwoWay}" />
+      <Button Grid.Column="1" Content="Browse..." Click="OnBrowseClick" />
+      <Button Grid.Column="2" Content="Default" Click="OnResetClick" />
+    </Grid>
+    <StackPanel Orientation="Horizontal" Spacing="12">
+      <Button Content="Check interpreter" Click="OnCheckClick" />
+      <TextBlock Text="{Binding PythonInfo}" VerticalAlignment="Center" />
+    </StackPanel>
+
+    <Separator />
+    <TextBlock Text="Editor" FontSize="16" FontWeight="SemiBold" />
+    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" RowSpacing="10">
+      <TextBlock Grid.Row="0" Text="Theme" VerticalAlignment="Center" />
+      <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme, Mode=TwoWay}" MinWidth="160" />
+      <TextBlock Grid.Row="1" Text="Font size" VerticalAlignment="Center" />
+      <NumericUpDown Grid.Row="1" Grid.Column="1" Minimum="8" Maximum="40" Increment="1"
+                     Value="{Binding FontSize, Mode=TwoWay}" FormatString="0" HorizontalAlignment="Left" MinWidth="160" />
+    </Grid>
+    <CheckBox Content="Show line numbers" IsChecked="{Binding ShowLineNumbers, Mode=TwoWay}" />
+    <CheckBox Content="Word wrap" IsChecked="{Binding WordWrap, Mode=TwoWay}" />
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
+      <Button Content="OK" Classes="accent" MinWidth="90" Click="OnOkClick" />
+      <Button Content="Cancel" MinWidth="90" Click="OnCancelClick" />
+    </StackPanel>
+  </StackPanel>
+</Window>
